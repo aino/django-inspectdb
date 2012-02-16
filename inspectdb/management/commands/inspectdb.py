@@ -28,6 +28,14 @@ class Command(NoArgsCommand):
             default=False,
             help=('Forces the field key word argument ``db_column``'),
             ),
+        make_option(
+            '-s',
+            '--single.table',
+            action='store',
+            dest='single_table',
+            default=None,
+            help=('Inspects a single table'),
+            ),
     )
 
     requires_model_validation = False
@@ -43,11 +51,17 @@ class Command(NoArgsCommand):
     def handle_inspection(self, options):
         alias = options['database']
         force_db_column = options['force_db_column']
+        single_table = options['single_table']
         self.engine = settings.DATABASES[alias]['ENGINE']
         self.connection = connections[alias]
         cursor = self.connection.cursor()
         yield 'from %s import models' % self.db_module
-        for table_name in self.connection.introspection.get_table_list(cursor):
+        if single_table is None:
+            tables_list = self.connection.introspection.get_table_list(cursor)
+        else:
+            tables_list = [single_table]
+        
+        for table_name in tables_list:
             yield ''
             yield ''
             yield 'class %s(models.Model):' % to_model(table_name)
