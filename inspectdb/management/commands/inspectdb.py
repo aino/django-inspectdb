@@ -29,12 +29,20 @@ class Command(NoArgsCommand):
             help=('Forces the field key word argument ``db_column``'),
             ),
         make_option(
-            '-s',
-            '--single.table',
+            '-t',
+            '--tables',
             action='store',
-            dest='single_table',
+            dest='selected_tables',
             default=None,
-            help=('Inspects a single table'),
+            help=('Inspects tables in list (comma separated)'),
+            ),
+        make_option(
+            '-e',
+            '--excluded-tables',
+            action='store',
+            dest='excluded_tables',
+            default=None,
+            help=('Do not inspect tables in list (comma separated)'),
             ),
     )
 
@@ -51,17 +59,32 @@ class Command(NoArgsCommand):
     def handle_inspection(self, options):
         alias = options['database']
         force_db_column = options['force_db_column']
-        single_table = options['single_table']
+        selected_tables = options['selected_tables']
+        excluded_tables = options['excluded_tables']
         self.engine = settings.DATABASES[alias]['ENGINE']
         self.connection = connections[alias]
         cursor = self.connection.cursor()
         yield 'from %s import models' % self.db_module
-        if single_table is None:
-            tables_list = self.connection.introspection.get_table_list(cursor)
-        else:
-            tables_list = [single_table]
         
-        for table_name in tables_list:
+        all_tables_list = self.connection.introspection.get_table_list(cursor)[:]
+        if selected_tables is None and excluded_tables is None:
+            selected_tables_list = all_tables_list
+        elif selected_tables and len(selected_tables):
+            try:
+                selected_tables_list = selected_tables.split(",")
+                tables_not_found = [t for t in selected_tables_list if t not in all_tables_list]
+                if len(tables_not_found):
+                    raise
+            except:
+                raise CommandError("With the -t or --tables, you must provide a comma separated list of existing tables")
+        elif excluded_tables and len(excluded_tables):
+            try:
+                excluded_tables_list = excluded_tables.split(",")
+                selected_tables_list = [x for x in all_tables_list if x not in excluded_tables_list]
+            except Exception, e:
+                raise CommandError("With the -e or --excluded-tables, you must provide a comma separated list of tables")
+                     
+        for table_name in selected_tables_list:
             yield ''
             yield ''
             yield 'class %s(models.Model):' % to_model(table_name)
