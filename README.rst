@@ -29,15 +29,15 @@ Just use it as the normal `inspectdb management command`_::
 
 The following command-line switches are available:
 
--d,--database
+    -d,--database
     
     python manage.py inspectdb -d yourdbname > models.py
     
--t,--tables
+    -t,--tables
 
     python manage.py inspectdb -t yourtablename1,yourtablename2 > models.py
     
--e,--exclude-tables
+    -e,--exclude-tables
 
     python manage.py inspectdb -e yourtablename1,yourtablename2 > models.py
 
