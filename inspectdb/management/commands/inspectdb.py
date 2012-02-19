@@ -72,6 +72,7 @@ class Command(NoArgsCommand):
         elif selected_tables and len(selected_tables):
             try:
                 selected_tables_list = selected_tables.split(",")
+                selected_tables_list = [x.strip() for x in selected_tables_list]
                 tables_not_found = [t for t in selected_tables_list if t not in all_tables_list]
                 if len(tables_not_found):
                     raise
@@ -80,6 +81,7 @@ class Command(NoArgsCommand):
         elif excluded_tables and len(excluded_tables):
             try:
                 excluded_tables_list = excluded_tables.split(",")
+                excluded_tables_list = [x.strip() for x in excluded_tables_list]
                 selected_tables_list = [x for x in all_tables_list if x not in excluded_tables_list]
             except Exception, e:
                 raise CommandError("With the -e or --excluded-tables, you must provide a comma separated list of tables")
