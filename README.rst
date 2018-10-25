@@ -27,6 +27,20 @@ Just use it as the normal `inspectdb management command`_::
 
     python manage.py inspectdb > models.py
 
+The following command-line switches are available:
+
+    -d,--database
+    
+    python manage.py inspectdb -d yourdbname > models.py
+    
+    -t,--tables
+
+    python manage.py inspectdb -t yourtablename1,yourtablename2 > models.py
+    
+    -e,--exclude-tables
+
+    python manage.py inspectdb -e yourtablename1,yourtablename2 > models.py
+
 
 .. _ticket #5725: http://code.djangoproject.com/ticket/5725
 .. _inspectdb management command: http://docs.djangoproject.com/en/1.3/howto/legacy-databases/#auto-generate-the-models
